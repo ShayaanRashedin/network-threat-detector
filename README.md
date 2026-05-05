@@ -10,10 +10,10 @@ A Python-based IDS-style network threat detection prototype that analyzes traffi
 - Possible data exfiltration detection
 - Prints alerts with source IP, destination IP, and scanned ports
 - Beaconing behavior detection
+- SQLite alert storage
 
 ## Planned Features
 
-- SQLite alert storage
 - Bash automation
 - Support for Wireshark-exported traffic logs
 - Apache Airflow workflow orchestration
