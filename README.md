@@ -15,8 +15,7 @@ A Python-based IDS-style network threat detection prototype that analyzes traffi
 
 ## Planned Features
 
-- Bash automation
-- Support for Wireshark-exported traffic logs
+- Support for Wireshark exported traffic logs
 - Apache Airflow workflow orchestration
 - Apache Spark support for large-scale log processing
 - Apache NiFi support for log ingestion and routing
