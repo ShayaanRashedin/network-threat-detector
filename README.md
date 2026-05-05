@@ -11,6 +11,7 @@ A Python-based IDS-style network threat detection prototype that analyzes traffi
 - Prints alerts with source IP, destination IP, and scanned ports
 - Beaconing behavior detection
 - SQLite alert storage
+- Bash automation
 
 ## Planned Features
 
