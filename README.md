@@ -13,10 +13,10 @@ A Python-based IDS-style network threat detection prototype that analyzes traffi
 - SQLite alert storage
 - Bash automation
 - Support for Wireshark exported traffic logs
+- Apache Airflow workflow orchestration
 
 ## Planned Features
 
-- Apache Airflow workflow orchestration
 - Apache Spark support for large-scale log processing
 - Apache NiFi support for log ingestion and routing
 
