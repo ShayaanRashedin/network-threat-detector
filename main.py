@@ -1,4 +1,6 @@
-from detector.log_reader import read_logs
+import argparse
+
+from detector.log_reader import read_custom_logs, read_wireshark_logs
 from detector.rules import (
     detect_port_scanning,
     detect_suspicious_outbound,
@@ -8,12 +10,36 @@ from detector.rules import (
 from detector.alert_printer import print_alerts
 from detector.database import initialize_database, save_alerts_to_database
 
-LOG_FILE = "sample_logs.csv"
+def load_logs(filename, log_format):
+    if log_format == "custom":
+        return read_custom_logs(filename)
+    
+    if log_format == "wireshark":
+        return read_wireshark_logs(filename)
+    
+    raise ValueError("Unsupported log format")
 
 def main():
+    parser = argparse.ArgumentParser(description="Network Threat Detector")
+    
+    parser.add_argument(
+        "--file",
+        default="sample_logs.csv",
+        help="Path to the log file to analyze"
+    )
+
+    parser.add_argument(
+        "--format",
+        choices=["custom", "wireshark"],
+        default="custom",
+        help="Log format: custom or wireshark"
+    )
+
+    args = parser.parse_args()
+
     initialize_database()
 
-    logs = read_logs(LOG_FILE)
+    logs = load_logs(args.file, args.format)
 
     alerts = []
 
