@@ -20,7 +20,7 @@ def print_alerts(alerts):
             print(f"Reason: {alert['reason']}")
 
         elif alert["alert_type"] == "Possible Data Exfiltration":
-            print(f"BytesSent: {alert['bytes_sent']}")
+            print(f"Bytes Sent: {alert['bytes_sent']}")
             print(f"Threshold: {alert['threshold']}")
             print(f"Reason: {alert['reason']}")
 
