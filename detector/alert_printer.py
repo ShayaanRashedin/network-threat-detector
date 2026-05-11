@@ -7,7 +7,7 @@ def print_alerts(alerts):
     print("-----------------")
 
     for alert in alerts:
-        print(f"Alert Type: {alert['alert_type']}")
+        print(f"[{alert.get('severity', 'LOW')}] {alert['alert_type']}")
         print(f"Source IP: {alert['src_ip']}")
         print(f"Destination IP: {alert['dst_ip']}")
 

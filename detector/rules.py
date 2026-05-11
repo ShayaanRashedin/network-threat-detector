@@ -6,6 +6,40 @@ DATA_EXFIL_THRESHOLD = 1000000
 BEACON_MIN_CONNECTIONS = 4
 BEACON_INTERVAL_TOLERANCE = 5
 
+def assign_severity(alert_type, details):
+
+    if alert_type == "Possible Port Scan":
+        ports_scanned = details.get("ports_scanned", [])
+        if len(ports_scanned) >= 10:
+            return "HIGH"
+        return "MEDIUM"
+    
+    if alert_type == "Suspicious Outbound Connection":
+        suspicious_ports = {4444, 31337, 6667, 23, 3389}
+        dst_port = details.get("dst_port")
+
+        if dst_port in suspicious_ports:
+            return "HIGH"
+        return "MEDIUM"
+    
+    if alert_type == "Possible Data Exfiltration":
+        bytes_sent = details.get("bytes_sent", 0)
+
+        if bytes_sent >= 5_000_000:
+            return "CRITICAL"
+        if bytes_sent >= 1_000_000:
+            return "HIGH"
+        return "MEDIUM"
+    
+    if alert_type == "Possible Beaconing Behavior":
+        connection_count = details.get("connection_count", 0)
+
+        if connection_count >= 10:
+            return "HIGH"
+        return "MEDIUM"
+    
+    return "LOW"
+
 def detect_port_scanning(logs):
     connections = defaultdict(set)
 
@@ -17,8 +51,15 @@ def detect_port_scanning(logs):
 
     for (src_ip, dst_ip), ports in connections.items():
         if len(ports) >= PORT_SCAN_THRESHOLD:
+            ports_scanned = sorted(ports)
+
+            details = {
+                "ports_scanned": ports_scanned
+            }
+
             alerts.append({
                 "alert_type": "Possible Port Scan",
+                "severity": assign_severity("Possible Port Scan", details),
                 "src_ip": src_ip,
                 "dst_ip": dst_ip,
                 "ports_scanned": sorted(ports),
@@ -59,8 +100,13 @@ def detect_suspicious_outbound(logs):
 
         if is_private_ip(src_ip) and not is_private_ip(dst_ip):
             if dst_port not in COMMON_PORTS:
+                details = {
+                    "dst_port": dst_port
+                }
+
                 alerts.append({
                     "alert_type": "Suspicious Outbound Connection",
+                    "severity": assign_severity("Suspicious Outbound Connection", details),
                     "src_ip": src_ip,
                     "dst_ip": dst_ip,
                     "dst_port": dst_port,
@@ -79,8 +125,13 @@ def detect_data_exfiltration(logs):
 
         if is_private_ip(src_ip) and not is_private_ip(dst_ip):
             if bytes_sent >= DATA_EXFIL_THRESHOLD:
+                details = {
+                    "bytes_sent": bytes_sent
+                }
+
                 alerts.append({
                     "alert_type": "Possible Data Exfiltration",
+                    "severity": assign_severity("Possible Data Exfiltration", details),
                     "src_ip": src_ip,
                     "dst_ip": dst_ip,
                     "bytes_sent": bytes_sent,
@@ -124,13 +175,20 @@ def detect_beaconing(logs):
                 consistent_intervals += 1
 
         if consistent_intervals == len(time_differences):
+            connection_count = len(timestamps)
+
+            details = {
+                "connection_count": connection_count
+            }
+
             alerts.append({
                 "alert_type": "Possible Beaconing Behavior",
-                    "src_ip": src_ip,
-                    "dst_ip": dst_ip,
-                    "connection_count": len(timestamps),
-                    "average_interval_seconds": round(average_interval, 2),
-                    "reason": "Internal host made repeated connections to the same external IP at regular intervals"
+                "severity": assign_severity("Possible Beaconing Behavior", details),
+                "src_ip": src_ip,
+                "dst_ip": dst_ip,
+                "connection_count": len(timestamps),
+                "average_interval_seconds": round(average_interval, 2),
+                "reason": "Internal host made repeated connections to the same external IP at regular intervals"
             })
 
     return alerts
