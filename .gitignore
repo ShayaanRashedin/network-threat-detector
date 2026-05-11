@@ -8,3 +8,5 @@ airflow/config
 .env
 __pycache__/
 *.pyc
+*.py[cod]
+detector/__pycahce__/
